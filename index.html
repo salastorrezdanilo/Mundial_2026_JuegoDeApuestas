@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 Apuestas Mundial 2026 🏆</title>
+  <style>
+    /* TODOS LOS ESTILOS INTEGRADOS LIMPIOS */
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f5; margin: 0; padding: 10px; color: #333; }
+    .form-container { max-width: 500px; margin: 0 auto; background: #ffffff; padding: 20px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    h2 { text-align: center; color: #1a472a; margin-bottom: 20px; font-size: 22px; }
+    .tabs-container { display: flex; gap: 5px; margin-bottom: 20px; background: #eee; padding: 4px; border-radius: 8px; }
+    .tab-btn { flex: 1; padding: 10px 5px; font-size: 12px; font-weight: bold; cursor: pointer; background: transparent; color: #555; border: none; border-radius: 6px; transition: all 0.2s; text-align: center; }
+    .tab-btn.active { background: #1a472a; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+    .campo { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #444; }
+    select, input[type="date"], input[type="password"] { width: 100%; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; outline: none; }
+    button { width: 100%; padding: 12px; background-color: #1a472a; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    .mensaje { margin-top: 15px; padding: 12px; border-radius: 6px; text-align: center; font-weight: 500; font-size: 14px; display: none; }
+    .mensaje.carga { background-color: #e2e3e5; color: #383d41; }
+    .mensaje.exito { background-color: #d4edda; color: #155724; }
+    .tabla-ranking, .tabla-fixture { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; font-size: 14px; }
+    .tabla-ranking th, .tabla-fixture th { background-color: #1a472a; color: white; padding: 10px; text-align: left; }
+    .tabla-ranking td, .tabla-fixture td { padding: 10px; border-bottom: 1px solid #eee; }
+    .categoria-titulo { background: #e2e3e5; padding: 6px 10px; font-weight: bold; font-size: 13px; color: #333; margin-top: 15px; border-radius: 4px; }
+    .marcador-real-badge { background: #1a472a; color: #fff; padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+    .marcador-pendiente-badge { background: #fff3cd; color: #856404; padding: 3px 6px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>🏆 Apuestas Mundial 2026 🏆</h2>
+    
+    <div class="tabs-container">
+      <button type="button" id="tabCartillaBtn" class="tab-btn active" onclick="cambiarPestaña('cartilla')">Pronósticos</button>
+      <button type="button" id="tabPosicionesBtn" class="tab-btn" onclick="cambiarPestaña('posiciones')">Tabla de Posiciones</button>
+      <button type="button" id="tabFixtureBtn" class="tab-btn" onclick="cambiarPestaña('fixture')">Resultados Reales</button>
+    </div>
+    
+    <div id="seccionCartilla">
+      <form id="formularioMundial">
+        <div class="campo">
+          <label for="nombre">Tu Nombre:</label>
+          <select id="nombre" name="nombre" required onchange="manejarCambioUsuario()">
+            <option value="" disabled selected>Cargando participantes...</option>
+          </select>
+        </div>
+
+
+
+        <div class="campo" id="bloqueClave" style="display: none;">
+          <label for="clave">Tu Clave Personal:</label>
+          <input type="password" id="clave" name="clave" placeholder="Introduce tu contraseña">
+          
+          <div style="text-align: right; margin-top: 5px;">
+            <button type="button" onclick="alternarPanelNuevaClave()" style="background: none; color: #1a472a; border: none; padding: 0; font-size: 12px; cursor: pointer; text-decoration: underline; width: auto; font-weight: normal;">
+              🔑 Cambiar contraseña
+            </button>
+          </div>
+        </div>
+
+        <div class="campo" id="panelNuevaClave" style="display: none; background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 6px; margin-top: 10px;">
+          <label for="nuevaClave" style="font-size: 13px;">Nueva Contraseña:</label>
+          <input type="password" id="nuevaClave" placeholder="Escribe tu nueva clave" style="margin-bottom: 10px;">
+          <button type="button" onclick="procesarCambioClave()" style="padding: 8px; font-size: 13px; background-color: #2e7d32;">
+            Confirmar Nueva Contraseña
+          </button>
+        </div>
+
+
+
+        <div class="campo">
+          <label for="fechaPartido">Fecha de Partidos:</label>
+          <input type="date" id="fechaPartido" name="fechaPartido" required disabled onchange="actualizarCartilla()" style="background-color: #f0f0f0; cursor: not-allowed;">
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
+        <div id="contenedorCartilla">
+          <p id="textoGuiaCartilla" style="text-align: center; color: #999; font-style: italic;">Por favor, selecciona tu nombre para continuar.</p>
+        </div>
+        <button type="submit" id="btnGuardar" style="display:none; margin-top: 20px;">Guardar Pronósticos</button>
+      </form>
+    </div>
+    
+    <div id="seccionPosiciones" style="display: none;">
+      <div id="contenedorTabla"><p style="text-align: center;">Cargando tabla...</p></div>
+    </div>
+
+    <div id="seccionFixture" style="display: none;">
+      <div id="contenedorFixture"><p style="text-align: center;">Cargando partidos...</p></div>
+    </div>
+
+    <div id="mensaje" class="mensaje"></div>
+  </div>
+
+  <script>
+    // ⚠️ PEGA AQUÍ TU ENLACE DE GOOGLE APPS SCRIPT QUE TERMINA EN /exec
+    const URL_API = "https://script.google.com/macros/s/AKfycbwE9OtGzBnpc8EFHEwZ54gkr-Mlrt3A8pmUsWZMXNzP6y4o3ZF-sWG4-wowzgF922Y5/exec";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const selectorFecha = document.getElementById('fechaPartido');
+      const hoy = new Date();
+      selectorFecha.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+      
+      // Cargar participantes de forma remota vía Fetch
+      fetch(`${URL_API}?accion=obtenerParticipantes`)
+        .then(res => res.json())
+        .then(datos => {
+          const select = document.getElementById('nombre');
+          select.innerHTML = '<option value="" disabled selected>-- Selecciona tu nombre --</option>';
+          datos.forEach(p => {
+            let opt = document.createElement('option');
+            opt.value = p; opt.textContent = p; select.appendChild(opt);
+          });
+        }).catch(() => {
+          document.getElementById('nombre').innerHTML = '<option value="" disabled>Error de conexión</option>';
+        });
+    });
+
+
+
+function manejarCambioUsuario() {
+      document.getElementById('bloqueClave').style.display = "block";
+      document.getElementById('clave').value = "";
+      // Asegurar que el panel de cambio de clave se cierre al cambiar de usuario
+      document.getElementById('panelNuevaClave').style.display = "none";
+      bloquearFiltrosYCartilla("Por favor, introduce tu contraseña.");
+    }
+
+    // AGREGAR ESTO: Función para abrir/cerrar el panel de cambio de clave
+    function alternarPanelNuevaClave() {
+      const panel = document.getElementById('panelNuevaClave');
+      const inputNueva = document.getElementById('nuevaClave');
+      if (panel.style.display === "none") {
+        panel.style.display = "block";
+        inputNueva.value = "";
+        inputNueva.focus();
+      } else {
+        panel.style.display = "none";
+      }
+    }
+
+    // AGREGAR ESTO: Función para procesar el cambio de contraseña de forma remota
+    function procesarCambioClave() {
+      const nombre = document.getElementById('nombre').value;
+      const claveActual = document.getElementById('clave').value;
+      const nuevaClave = document.getElementById('nuevaClave').value.trim();
+      const divMensaje = document.getElementById('mensaje');
+
+      if (!nombre || !claveActual) {
+        alert("Por favor, selecciona tu nombre e introduce tu contraseña actual.");
+        return;
+      }
+      if (nuevaClave === "") {
+        alert("Escribe una nueva contraseña válida.");
+        return;
+      }
+
+      divMensaje.className = "mensaje carga";
+      divMensaje.style.display = "block";
+      divMensaje.textContent = "Procesando cambio de contraseña...";
+
+      // Llamada remota a tu Google Apps Script (Web App API)
+      fetch(`${URL_API}?accion=verificarClave&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(claveActual)}`)
+        .then(res => res.json())
+        .then(claveEsCorrecta => {
+          if (!claveEsCorrecta || claveEsCorrecta.error) {
+            divMensaje.className = "mensaje";
+            divMensaje.style.backgroundColor = "#f8d7da";
+            divMensaje.style.color = "#721c24";
+            divMensaje.textContent = "⚠️ La contraseña actual es incorrecta.";
+            return;
+          }
+
+          // Si la contraseña actual es válida, procedemos a registrar la nueva
+          fetch(`${URL_API}?accion=registrarClave&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(claveActual)}&nuevaClave=${encodeURIComponent(nuevaClave)}`)
+            .then(res => res.json())
+            .then(resultado => {
+              if (resultado.error) {
+                throw new Error(resultado.error);
+              }
+              divMensaje.className = "mensaje exito";
+              divMensaje.textContent = "¡Contraseña actualizada con éxito!";
+              document.getElementById('clave').value = nuevaClave;
+              alternarPanelNuevaClave();
+              actualizarCartilla(); // Refrescar la vista con la nueva clave activa
+            });
+        })
+        .catch(err => {
+          divMensaje.className = "mensaje";
+          divMensaje.style.backgroundColor = "#f8d7da";
+          divMensaje.style.color = "#721c24";
+          divMensaje.textContent = "Error al intentar cambiar la contraseña.";
+        });
+    }
+
+
+
+
+
+
+    document.getElementById('clave').addEventListener('input', actualizarCartilla);
+
+    function bloquearFiltrosYCartilla(msg) {
+      const sf = document.getElementById('fechaPartido');
+      sf.disabled = true; sf.style.backgroundColor = "#f0f0f0";
+      document.getElementById('contenedorCartilla').innerHTML = `<p style="text-align:center; color:#999; font-style:italic;">${msg}</p>`;
+      document.getElementById('btnGuardar').style.display = "none";
+    }
+
+    function actualizarCartilla() {
+      const fecha = document.getElementById('fechaPartido').value;
+      const nombre = document.getElementById('nombre').value;
+      const clave = document.getElementById('clave').value;
+      const cartilla = document.getElementById('contenedorCartilla');
+      const btnGuardar = document.getElementById('btnGuardar');
+      const sf = document.getElementById('fechaPartido');
+
+      if (!nombre || !clave) return;
+
+      cartilla.innerHTML = '<p style="text-align: center; color: #666;">Validando credenciales...</p>';
+
+      fetch(`${URL_API}?accion=obtenerPartidos&fecha=${fecha}&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}`)
+        .then(res => res.json())
+        .then(partidos => {
+          if (partidos.error) {
+            bloquearFiltrosYCartilla("⚠️ Contraseña incorrecta o acceso denegado.");
+            return;
+          }
+          sf.disabled = false; sf.style.backgroundColor = "#fff";
+          cartilla.innerHTML = "";
+          
+          if(partidos.length === 0) {
+            cartilla.innerHTML = '<p style="text-align:center; color:#666;">No hay partidos para esta fecha.</p>';
+            return;
+          }
+
+          partidos.forEach(p => {
+            const div = document.createElement('div');
+            div.style = "background:#fafafa; border:1px solid #e0e0e0; padding:10px; border-radius:8px; margin-bottom:10px;";
+            div.className = "partido-fila-contenedor";
+            div.setAttribute('data-id-partido', p.id);
+            const dis = p.bloqueado ? 'disabled style="background:#e9ecef;"' : '';
+            
+            div.innerHTML = `
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="width:30%; font-size:12px; font-weight:bold;">${p.equipo1}</div>
+                <div style="width:40%; display:flex; justify-content:center; gap:5px; align-items:center;">
+                  <input type="hidden" class="eq1-hidden" value="${p.equipo1}">
+                  <input type="number" class="gol1-input" min="0" placeholder="-" value="${p.goles1}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
+                  <span style="font-size:11px; background:#1a472a; color:#fff; padding:2px 4px; border-radius:3px;">${p.horario}</span>
+                  <input type="number" class="gol2-input" min="0" placeholder="-" value="${p.goles2}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
+                  <input type="hidden" class="eq2-hidden" value="${p.equipo2}">
+                </div>
+                <div style="width:30%; text-align:right; font-size:12px; font-weight:bold;">${p.equipo2}</div>
+              </div>`;
+            cartilla.appendChild(div);
+          });
+          btnGuardar.style.display = "block";
+        });
+    }
+
+    document.getElementById('formularioMundial').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const clave = document.getElementById('clave').value;
+      const fecha = document.getElementById('fechaPartido').value;
+      const msg = document.getElementById('mensaje');
+      
+      let resultados = [];
+      document.querySelectorAll('.partido-fila-contenedor').forEach(fila => {
+        const g1 = fila.querySelector('.gol1-input').value;
+        const g2 = fila.querySelector('.gol2-input').value;
+        if (g1.trim() !== "" && g2.trim() !== "") {
+          resultados.push({
+            idPartido: fila.getAttribute('data-id-partido'),
+            equipo1: fila.querySelector('.eq1-hidden').value,
+            goles1: g1, goles2: g2,
+            equipo2: fila.querySelector('.eq2-hidden').value
+          });
+        }
+      });
+
+      if(resultados.length === 0) { alert("Llena al menos un partido completo."); return; }
+
+      msg.className = "mensaje carga"; msg.style.display = "block"; msg.textContent = "Guardando pronósticos...";
+
+      fetch(`${URL_API}?accion=registrarGoles&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}&fecha=${fecha}&resultados=${encodeURIComponent(JSON.stringify(resultados))}`)
+        .then(res => res.json())
+        .then(res => {
+          msg.className = "mensaje exito"; msg.textContent = res.mensaje;
+          actualizarCartilla();
+        });
+    });
+
+
+
+// MANEJO DE PESTAÑAS REMOTAS (CORREGIDO CON CAMBIO DE COLOR VERDE)
+    function cambiarPestaña(tipo) {
+      // 1. Ocultar o mostrar las secciones visuales
+      document.getElementById('seccionCartilla').style.display = tipo === 'cartilla' ? 'block' : 'none';
+      document.getElementById('seccionPosiciones').style.display = tipo === 'posiciones' ? 'block' : 'none';
+      document.getElementById('seccionFixture').style.display = tipo === 'fixture' ? 'block' : 'none';
+      document.getElementById('mensaje').style.display = "none";
+      
+      // 2. CORRECCIÓN: Quitar el color verde (clase active) de todos los botones
+      document.getElementById('tabCartillaBtn').classList.remove('active');
+      document.getElementById('tabPosicionesBtn').classList.remove('active');
+      document.getElementById('tabFixtureBtn').classList.remove('active');
+      
+      // 3. CORRECCIÓN: Poner el color verde al botón que se acaba de presionar
+      if (tipo === 'cartilla') document.getElementById('tabCartillaBtn').classList.add('active');
+      if (tipo === 'posiciones') document.getElementById('tabPosicionesBtn').classList.add('active');
+      if (tipo === 'fixture') document.getElementById('tabFixtureBtn').classList.add('active');
+      
+      // 4. Carga de datos de la Tabla de Posiciones
+      if(tipo === 'posiciones') {
+        document.getElementById('contenedorTabla').innerHTML = "<p style='text-align:center;'>Procesando puntuaciones...</p>";
+        fetch(`${URL_API}?accion=obtenerPosiciones`).then(r=>r.json()).then(tabla => {
+          let h = '<table class="tabla-ranking"><thead><tr><th>Pos</th><th>Usuario</th><th>Pts</th></tr></thead><tbody>';
+          tabla.forEach((f,i) => { h += `<tr><td>#${i+1}</td><td><b>${f.nombre}</b></td><td>${f.puntos} pts</td></tr>`; });
+          document.getElementById('contenedorTabla').innerHTML = h + '</tbody></table>';
+        });
+      }
+      
+      // 5. Carga de datos de los Resultados Reales
+      if(tipo === 'fixture') {
+        document.getElementById('contenedorFixture').innerHTML = "<p style='text-align:center;'>Cargando base oficial...</p>";
+        fetch(`${URL_API}?accion=obtenerFixture`).then(r=>r.json()).then(partidos => {
+          let h = '<table class="tabla-fixture"><tbody>';
+          partidos.forEach(p => {
+            let m = (p.golesReal1===""||p.golesReal2==="") ? `<span class="marcador-pendiente-badge">${p.horario}</span>` : `<span class="marcador-real-badge">${p.golesReal1} - ${p.golesReal2}</span>`;
+            h += `<tr>
+                    <td style="font-size:11px; color:#555; line-height:1.2;">
+                      <strong>${p.fecha}</strong><br>
+                      <span style="color:#2e7d32; font-weight:600;">${p.grupo}</span>
+                    </td>
+                    <td style="text-align:right; font-weight:500;">${p.equipo1}</td>
+                    <td style="text-align:center; min-width:70px;">${m}</td>
+                    <td style="text-align:left; font-weight:500;">${p.equipo2}</td>
+                  </tr>`;
+          });
+          document.getElementById('contenedorFixture').innerHTML = h + '</tbody></table>';
+        });
+      }
+    }
+
+
+
+  </script>
+</body>
+</html>
