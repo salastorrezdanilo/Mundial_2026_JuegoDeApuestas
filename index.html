@@ -242,7 +242,8 @@ function manejarCambioUsuario() {
             div.style = "background:#fafafa; border:1px solid #e0e0e0; padding:10px; border-radius:8px; margin-bottom:10px;";
             div.className = "partido-fila-contenedor";
             div.setAttribute('data-id-partido', p.id);
-            const dis = p.bloqueado ? 'disabled style="background:#e9ecef;"' : '';
+            const dis = p.bloqueado ? 'disabled style="width: 35px; text-align: center; background-color: #e9ecef; color: #6c757d; border: 1px solid #ccc; cursor: not-allowed; font-weight: bold;"' 
+  : '';
             
             div.innerHTML = `
               <div style="display:flex; align-items:center; justify-content:space-between;">
