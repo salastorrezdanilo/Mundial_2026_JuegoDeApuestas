@@ -97,7 +97,7 @@
 
   <script>
     // ⚠️ PEGA AQUÍ TU ENLACE DE GOOGLE APPS SCRIPT QUE TERMINA EN /exec
-    const URL_API = "https://script.google.com/macros/s/AKfycbztF35MdSZSt3NrgAUEhzylC_GCYIJ16tmfc1v0qZIHp6AChuR8ma48SjKHj6O-X5wC/exec";
+    const URL_API = "https://script.google.com/macros/s/AKfycbxQIT6J_WRjwPoSHzdiIjxf_xrKysA6tiewiiLwo5tbViBwtJW-5UGq1Kx7qaXOkUQD/exec";
 
     window.addEventListener('DOMContentLoaded', () => {
       const selectorFecha = document.getElementById('fechaPartido');
@@ -242,8 +242,7 @@ function manejarCambioUsuario() {
             div.style = "background:#fafafa; border:1px solid #e0e0e0; padding:10px; border-radius:8px; margin-bottom:10px;";
             div.className = "partido-fila-contenedor";
             div.setAttribute('data-id-partido', p.id);
-            const dis = p.bloqueado ? 'disabled style="width: 35px; text-align: center; background-color: #e9ecef; color: #6c757d; border: 1px solid #ccc; cursor: not-allowed; font-weight: bold;"' 
-  : '';
+            const dis = p.bloqueado ? 'disabled style="background:#e9ecef;"' : '';
             
             div.innerHTML = `
               <div style="display:flex; align-items:center; justify-content:space-between;">
@@ -271,52 +270,28 @@ function manejarCambioUsuario() {
       const msg = document.getElementById('mensaje');
       
       let resultados = [];
-      
-      // REVISAR CADA FILA DE PARTIDO
       document.querySelectorAll('.partido-fila-contenedor').forEach(fila => {
-        const inputG1 = fila.querySelector('.gol1-input');
-        const inputG2 = fila.querySelector('.gol2-input');
-        
-        // CORRECCIÓN CLAVE: Solo procesar el partido si NO está deshabilitado (disabled)
-        if (inputG1 && !inputG1.hasAttribute('disabled')) {
-          const g1 = inputG1.value;
-          const g2 = inputG2.value;
-          
-          // Solo agregarlo a la lista si el usuario escribió ambos goles
-          if (g1.trim() !== "" && g2.trim() !== "") {
-            resultados.push({
-              idPartido: fila.getAttribute('data-id-partido'),
-              equipo1: fila.querySelector('.eq1-hidden').value,
-              goles1: g1, 
-              goles2: g2,
-              equipo2: fila.querySelector('.eq2-hidden').value
-            });
-          }
+        const g1 = fila.querySelector('.gol1-input').value;
+        const g2 = fila.querySelector('.gol2-input').value;
+        if (g1.trim() !== "" && g2.trim() !== "") {
+          resultados.push({
+            idPartido: fila.getAttribute('data-id-partido'),
+            equipo1: fila.querySelector('.eq1-hidden').value,
+            goles1: g1, goles2: g2,
+            equipo2: fila.querySelector('.eq2-hidden').value
+          });
         }
       });
 
-      // Si no hay partidos nuevos editables llenados, frenar el envío
-      if (resultados.length === 0) { 
-        alert("No tienes pronósticos nuevos o modificables para guardar en este momento."); 
-        return; 
-      }
+      if(resultados.length === 0) { alert("Llena al menos un partido completo."); return; }
 
-      msg.className = "mensaje carga"; 
-      msg.style.display = "block"; 
-      msg.textContent = "Guardando tus nuevos pronósticos...";
+      msg.className = "mensaje carga"; msg.style.display = "block"; msg.textContent = "Guardando pronósticos...";
 
-      // Enviar de forma segura solo los registros nuevos/permitidos
       fetch(`${URL_API}?accion=registrarGoles&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}&fecha=${fecha}&resultados=${encodeURIComponent(JSON.stringify(resultados))}`)
         .then(res => res.json())
         .then(res => {
-          msg.className = "mensaje exito"; 
-          msg.textContent = res.mensaje;
-          actualizarCartilla(); // Refrescar la pantalla
-        }).catch(err => {
-          msg.className = "mensaje";
-          msg.style.backgroundColor = "#f8d7da";
-          msg.style.color = "#721c24";
-          msg.textContent = "Error al conectar con el servidor.";
+          msg.className = "mensaje exito"; msg.textContent = res.mensaje;
+          actualizarCartilla();
         });
     });
 
