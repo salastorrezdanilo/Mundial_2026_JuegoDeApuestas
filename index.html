@@ -271,28 +271,52 @@ function manejarCambioUsuario() {
       const msg = document.getElementById('mensaje');
       
       let resultados = [];
+      
+      // REVISAR CADA FILA DE PARTIDO
       document.querySelectorAll('.partido-fila-contenedor').forEach(fila => {
-        const g1 = fila.querySelector('.gol1-input').value;
-        const g2 = fila.querySelector('.gol2-input').value;
-        if (g1.trim() !== "" && g2.trim() !== "") {
-          resultados.push({
-            idPartido: fila.getAttribute('data-id-partido'),
-            equipo1: fila.querySelector('.eq1-hidden').value,
-            goles1: g1, goles2: g2,
-            equipo2: fila.querySelector('.eq2-hidden').value
-          });
+        const inputG1 = fila.querySelector('.gol1-input');
+        const inputG2 = fila.querySelector('.gol2-input');
+        
+        // CORRECCIÓN CLAVE: Solo procesar el partido si NO está deshabilitado (disabled)
+        if (inputG1 && !inputG1.hasAttribute('disabled')) {
+          const g1 = inputG1.value;
+          const g2 = inputG2.value;
+          
+          // Solo agregarlo a la lista si el usuario escribió ambos goles
+          if (g1.trim() !== "" && g2.trim() !== "") {
+            resultados.push({
+              idPartido: fila.getAttribute('data-id-partido'),
+              equipo1: fila.querySelector('.eq1-hidden').value,
+              goles1: g1, 
+              goles2: g2,
+              equipo2: fila.querySelector('.eq2-hidden').value
+            });
+          }
         }
       });
 
-      if(resultados.length === 0) { alert("Llena al menos un partido completo."); return; }
+      // Si no hay partidos nuevos editables llenados, frenar el envío
+      if (resultados.length === 0) { 
+        alert("No tienes pronósticos nuevos o modificables para guardar en este momento."); 
+        return; 
+      }
 
-      msg.className = "mensaje carga"; msg.style.display = "block"; msg.textContent = "Guardando pronósticos...";
+      msg.className = "mensaje carga"; 
+      msg.style.display = "block"; 
+      msg.textContent = "Guardando tus nuevos pronósticos...";
 
+      // Enviar de forma segura solo los registros nuevos/permitidos
       fetch(`${URL_API}?accion=registrarGoles&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}&fecha=${fecha}&resultados=${encodeURIComponent(JSON.stringify(resultados))}`)
         .then(res => res.json())
         .then(res => {
-          msg.className = "mensaje exito"; msg.textContent = res.mensaje;
-          actualizarCartilla();
+          msg.className = "mensaje exito"; 
+          msg.textContent = res.mensaje;
+          actualizarCartilla(); // Refrescar la pantalla
+        }).catch(err => {
+          msg.className = "mensaje";
+          msg.style.backgroundColor = "#f8d7da";
+          msg.style.color = "#721c24";
+          msg.textContent = "Error al conectar con el servidor.";
         });
     });
 
