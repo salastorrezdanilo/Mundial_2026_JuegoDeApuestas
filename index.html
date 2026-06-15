@@ -26,6 +26,16 @@
     .categoria-titulo { background: #e2e3e5; padding: 6px 10px; font-weight: bold; font-size: 13px; color: #333; margin-top: 15px; border-radius: 4px; }
     .marcador-real-badge { background: #1a472a; color: #fff; padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 12px; }
     .marcador-pendiente-badge { background: #fff3cd; color: #856404; padding: 3px 6px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; }
+
+    /* Ajuste para que los emojis de Twemoji se vean del tamaño correcto */
+    img.emoji {
+      height: 1.2em;
+      width: 1.2em;
+      vertical-align: middle;
+      margin-bottom: 0.2em;
+    }
+
+
   </style>
 </head>
 <body>
@@ -48,8 +58,6 @@
           </select>
         </div>
 
-
-
         <div class="campo" id="bloqueClave" style="display: none;">
           <label for="clave">Tu Clave Personal:</label>
           <input type="password" id="clave" name="clave" placeholder="Introduce tu contraseña">
@@ -68,8 +76,6 @@
             Confirmar Nueva Contraseña
           </button>
         </div>
-
-
 
         <div class="campo">
           <label for="fechaPartido">Fecha de Partidos:</label>
@@ -96,15 +102,61 @@
   </div>
 
   <script>
-    // ⚠️ PEGA AQUÍ TU ENLACE DE GOOGLE APPS SCRIPT QUE TERMINA EN /exec
-    const URL_API = "https://script.google.com/macros/s/AKfycbxQIT6J_WRjwPoSHzdiIjxf_xrKysA6tiewiiLwo5tbViBwtJW-5UGq1Kx7qaXOkUQD/exec";
+    const URL_API = "https://script.google.com/macros/s/AKfycbz7mHgXtQb_sChWdgTcfQjwuB69FslL6BZbxRNV1aEd5sDPZzdCVfNQHfW65PaoG-wR/exec";
+
+    // FUNCIÓN DE BANDERAS ULTRA-NÍTIDAS (HD) ADAPTADA A TU SHEET
+    function obtenerBandera(pais) {
+      if (!pais) return "";
+      const nombre = pais.toLowerCase().trim();
+      
+      const codigosISO = {
+        "méxico": "mx", "mexico": "mx", "sudáfrica": "za", "sudafrica": "za",
+        "corea del sur": "kr", "rep. checa": "cz", "republica checa": "cz",
+        "canadá": "ca", "canada": "ca", "bosnia y herzeg.": "ba", "bosnia": "ba",
+        "estados unidos": "us", "eeuu": "us", "paraguay": "py",
+        "catar": "qa", "qatar": "qa", "suiza": "ch",
+        "brasil": "br", "marruecos": "ma",
+        "haití": "ht", "haiti": "ht", "escocia": "gb-sct",
+        "australia": "au", "turquía": "tr", "turquia": "tr",
+        "alemania": "de", "curazao": "cw",
+        "países bajos": "nl", "holanda": "nl", "japón": "jp", "japon": "jp",
+        "costa de marfil": "ci", "ecuador": "ec",
+        "suecia": "se", "túnez": "tn", "tunez": "tn",
+        "españa": "es", "espana": "es", "cabo verde": "cv",
+        "bélgica": "be", "belgica": "be", "egipto": "eg",
+        "arabia saudita": "sa", "uruguay": "uy",
+        "irán": "ir", "iran": "ir", "nueva zelanda": "nz",
+        "francia": "fr", "senegal": "sn",
+        "irak": "iq", "noruega": "no",
+        "argentina": "ar", "argelia": "dz",
+        "austria": "at", "jordania": "jo",
+        "portugal": "pt", "rep. del congo": "cg", "rep. congo": "cg", "congo": "cg",
+        "inglaterra": "gb-eng", "croacia": "hr",
+        "ghana": "gh", "panamá": "pa", "panama": "pa",
+        "uzbekistán": "uz", "uzbekistan": "uz", "colombia": "co"
+      };
+      
+      const codigo = codigosISO[nombre];
+      
+      // Si no encuentra el país, usa una imagen genérica nítida de la ONU
+      if (!codigo) {
+        return `<img src="https://flagcdn.com/w40/un.png" style="height: 13px; width: 18px; object-fit: cover; border-radius: 2px; border: 1px solid #ccc; vertical-align: middle; display: inline-block;" alt="icon">`;
+      }
+      
+      // Cambiamos /16x12/ por /w40/ para traer el archivo en alta definición (HD)
+      return `<img src="https://flagcdn.com/w40/${codigo}.png" style="height: 13px; width: 18px; object-fit: cover; border-radius: 2px; border: 1px solid #ccc; vertical-align: middle; display: inline-block;" alt="${nombre}">`;
+    }
+
+
+
+
+
 
     window.addEventListener('DOMContentLoaded', () => {
       const selectorFecha = document.getElementById('fechaPartido');
       const hoy = new Date();
       selectorFecha.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
       
-      // Cargar participantes de forma remota vía Fetch
       fetch(`${URL_API}?accion=obtenerParticipantes`)
         .then(res => res.json())
         .then(datos => {
@@ -119,17 +171,13 @@
         });
     });
 
-
-
-function manejarCambioUsuario() {
+    function manejarCambioUsuario() {
       document.getElementById('bloqueClave').style.display = "block";
       document.getElementById('clave').value = "";
-      // Asegurar que el panel de cambio de clave se cierre al cambiar de usuario
       document.getElementById('panelNuevaClave').style.display = "none";
       bloquearFiltrosYCartilla("Por favor, introduce tu contraseña.");
     }
 
-    // AGREGAR ESTO: Función para abrir/cerrar el panel de cambio de clave
     function alternarPanelNuevaClave() {
       const panel = document.getElementById('panelNuevaClave');
       const inputNueva = document.getElementById('nuevaClave');
@@ -142,7 +190,6 @@ function manejarCambioUsuario() {
       }
     }
 
-    // AGREGAR ESTO: Función para procesar el cambio de contraseña de forma remota
     function procesarCambioClave() {
       const nombre = document.getElementById('nombre').value;
       const claveActual = document.getElementById('clave').value;
@@ -162,7 +209,6 @@ function manejarCambioUsuario() {
       divMensaje.style.display = "block";
       divMensaje.textContent = "Procesando cambio de contraseña...";
 
-      // Llamada remota a tu Google Apps Script (Web App API)
       fetch(`${URL_API}?accion=verificarClave&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(claveActual)}`)
         .then(res => res.json())
         .then(claveEsCorrecta => {
@@ -174,7 +220,6 @@ function manejarCambioUsuario() {
             return;
           }
 
-          // Si la contraseña actual es válida, procedemos a registrar la nueva
           fetch(`${URL_API}?accion=registrarClave&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(claveActual)}&nuevaClave=${encodeURIComponent(nuevaClave)}`)
             .then(res => res.json())
             .then(resultado => {
@@ -185,7 +230,7 @@ function manejarCambioUsuario() {
               divMensaje.textContent = "¡Contraseña actualizada con éxito!";
               document.getElementById('clave').value = nuevaClave;
               alternarPanelNuevaClave();
-              actualizarCartilla(); // Refrescar la vista con la nueva clave activa
+              actualizarCartilla();
             });
         })
         .catch(err => {
@@ -196,11 +241,6 @@ function manejarCambioUsuario() {
         });
     }
 
-
-
-
-
-
     document.getElementById('clave').addEventListener('input', actualizarCartilla);
 
     function bloquearFiltrosYCartilla(msg) {
@@ -209,6 +249,11 @@ function manejarCambioUsuario() {
       document.getElementById('contenedorCartilla').innerHTML = `<p style="text-align:center; color:#999; font-style:italic;">${msg}</p>`;
       document.getElementById('btnGuardar').style.display = "none";
     }
+
+
+
+// FUNCIÓN ACTUALIZADA: RENDERIZA EL HISTORIAL Y GUARDA LOS VALORES ORIGINALES
+
 
     function actualizarCartilla() {
       const fecha = document.getElementById('fechaPartido').value;
@@ -239,30 +284,67 @@ function manejarCambioUsuario() {
 
           partidos.forEach(p => {
             const div = document.createElement('div');
-            div.style = "background:#fafafa; border:1px solid #e0e0e0; padding:10px; border-radius:8px; margin-bottom:10px;";
+            div.style = "background:#fafafa; border:1px solid #e0e0e0; padding:12px 10px 8px 10px; border-radius:8px; margin-bottom:12px;";
             div.className = "partido-fila-contenedor";
             div.setAttribute('data-id-partido', p.id);
-            const dis = p.bloqueado ? 'disabled style="width: 35px; text-align: center; background-color: #e9ecef; color: #6c757d; border: 1px solid #ccc; cursor: not-allowed; font-weight: bold;"' 
-  : '';
             
+            const dis = p.bloqueado ? 'disabled style="width: 35px; text-align: center; background-color: #e9ecef; color: #6c757d; border: 1px solid #ccc; cursor: not-allowed; font-weight: bold;"' : '';
+            
+            let htmlInfoTiempo = '';
+            if (p.listaCambios && p.listaCambios.length > 0) {
+              let itemsCambios = '';
+              p.listaCambios.forEach((cambio, idx) => {
+                itemsCambios += `<div style="margin-top: 4px; color: #444; font-size: 11px; display: flex; justify-content: space-between;">
+                                   <span>🔴 Registro #${idx + 1}: <strong>${cambio.goles1} - ${cambio.goles2}</strong></span>
+                                   <span style="color: #777; font-size: 10px;">🕒 ${cambio.marcaTemporal}</span>
+                                 </div>`;
+              });
+
+              htmlInfoTiempo = `<div style="margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 6px; background-color: #f9f9f9; padding: 6px; border-radius: 5px;">
+                                  <div style="font-weight: bold; color: #1a472a; margin-bottom: 3px; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;">Historial de cambios:</div>
+                                  ${itemsCambios}
+                                </div>`;
+            } else {
+              htmlInfoTiempo = `<div style="text-align: center; font-size: 11px; color: #aaa; margin-top: 8px; border-top: 1px dashed #e5e5e5; padding-top: 5px;">
+                                  ⚠️ <em>Sin modificaciones previas</em>
+                                </div>`;
+            }
+            
+            // ESTRUCTURA CORREGIDA SIN TEXTO ROTO
             div.innerHTML = `
               <div style="display:flex; align-items:center; justify-content:space-between;">
-                <div style="width:30%; font-size:12px; font-weight:bold;">${p.equipo1}</div>
-                <div style="width:40%; display:flex; justify-content:center; gap:5px; align-items:center;">
+                <div style="width:35%; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:6px; justify-content:flex-start;">
+                  ${obtenerBandera(p.equipo1)}
+                  <span style="text-transform: uppercase;">${p.equipo1}</span>
+                </div>
+                
+                <div style="width:30%; display:flex; justify-content:center; gap:5px; align-items:center;">
                   <input type="hidden" class="eq1-hidden" value="${p.equipo1}">
-                  <input type="number" class="gol1-input" min="0" placeholder="-" value="${p.goles1}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
-                  <span style="font-size:11px; background:#1a472a; color:#fff; padding:2px 4px; border-radius:3px;">${p.horario}</span>
-                  <input type="number" class="gol2-input" min="0" placeholder="-" value="${p.goles2}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
+                  <input type="number" class="gol1-input" min="0" placeholder="-" value="${p.goles1}" data-orig1="${p.goles1}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
+                  <span style="font-size:11px; background:#1a472a; color:#fff; padding:2px 5px; border-radius:4px; font-weight:bold; white-space:nowrap;">${p.horario}</span>
+                  <input type="number" class="gol2-input" min="0" placeholder="-" value="${p.goles2}" data-orig2="${p.goles2}" ${dis} style="width:35px; text-align:center; font-weight:bold;">
                   <input type="hidden" class="eq2-hidden" value="${p.equipo2}">
                 </div>
-                <div style="width:30%; text-align:right; font-size:12px; font-weight:bold;">${p.equipo2}</div>
-              </div>`;
+                
+                <div style="width:35%; text-align:right; font-size:12px; font-weight:bold; display:flex; align-items:center; justify-content:flex-end; gap:6px;">
+                  <span style="text-transform: uppercase;">${p.equipo2}</span>
+                  ${obtenerBandera(p.equipo2)}
+                </div>
+              </div>
+              ${htmlInfoTiempo}`;
+              
             cartilla.appendChild(div);
           });
           btnGuardar.style.display = "block";
         });
     }
 
+
+
+
+
+
+    // EVENTO SUBMIT OPTIMIZADO: DETECTA QUÉ PARTIDOS CAMBIARON REALMENTE
     document.getElementById('formularioMundial').addEventListener('submit', function(e) {
       e.preventDefault();
       const nombre = document.getElementById('nombre').value;
@@ -272,46 +354,52 @@ function manejarCambioUsuario() {
       
       let resultados = [];
       
-      // REVISAR CADA FILA DE PARTIDO
       document.querySelectorAll('.partido-fila-contenedor').forEach(fila => {
         const inputG1 = fila.querySelector('.gol1-input');
         const inputG2 = fila.querySelector('.gol2-input');
         
-        // CORRECCIÓN CLAVE: Solo procesar el partido si NO está deshabilitado (disabled)
+        // Verificar que la fila sea editable (no bloqueada)
         if (inputG1 && !inputG1.hasAttribute('disabled')) {
           const g1 = inputG1.value;
           const g2 = inputG2.value;
           
-          // Solo agregarlo a la lista si el usuario escribió ambos goles
+          // Recuperamos los valores que ya existían originalmente en el Sheet
+          const orig1 = inputG1.getAttribute('data-orig1') || "";
+          const orig2 = inputG2.getAttribute('data-orig2') || "";
+          
+          // Solo si el usuario ha completado ambos campos
           if (g1.trim() !== "" && g2.trim() !== "") {
-            resultados.push({
-              idPartido: fila.getAttribute('data-id-partido'),
-              equipo1: fila.querySelector('.eq1-hidden').value,
-              goles1: g1, 
-              goles2: g2,
-              equipo2: fila.querySelector('.eq2-hidden').value
-            });
+            
+            // CORRECCIÓN INTELIGENTE: ¿El pronóstico actual es diferente al original guardado en el Sheet?
+            if (g1.trim() !== orig1.trim() || g2.trim() !== orig2.trim()) {
+              resultados.push({
+                idPartido: fila.getAttribute('data-id-partido'),
+                equipo1: fila.querySelector('.eq1-hidden').value,
+                goles1: g1, 
+                goles2: g2,
+                equipo2: fila.querySelector('.eq2-hidden').value
+              });
+            }
           }
         }
       });
 
-      // Si no hay partidos nuevos editables llenados, frenar el envío
+      // Si no hubo ningún cambio manual ni ingresos nuevos, detenemos el envío
       if (resultados.length === 0) { 
-        alert("No tienes pronósticos nuevos o modificables para guardar en este momento."); 
+        alert("No has realizado ningún cambio nuevo ni rellenado pronósticos vacíos para guardar."); 
         return; 
       }
 
       msg.className = "mensaje carga"; 
       msg.style.display = "block"; 
-      msg.textContent = "Guardando tus nuevos pronósticos...";
+      msg.textContent = "Guardando únicamente tus cambios nuevos...";
 
-      // Enviar de forma segura solo los registros nuevos/permitidos
       fetch(`${URL_API}?accion=registrarGoles&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}&fecha=${fecha}&resultados=${encodeURIComponent(JSON.stringify(resultados))}`)
         .then(res => res.json())
         .then(res => {
           msg.className = "mensaje exito"; 
           msg.textContent = res.mensaje;
-          actualizarCartilla(); // Refrescar la pantalla
+          actualizarCartilla(); // Refresca y actualiza los nuevos estados originales
         }).catch(err => {
           msg.className = "mensaje";
           msg.style.backgroundColor = "#f8d7da";
@@ -322,25 +410,21 @@ function manejarCambioUsuario() {
 
 
 
-// MANEJO DE PESTAÑAS REMOTAS (CORREGIDO CON CAMBIO DE COLOR VERDE)
+
     function cambiarPestaña(tipo) {
-      // 1. Ocultar o mostrar las secciones visuales
       document.getElementById('seccionCartilla').style.display = tipo === 'cartilla' ? 'block' : 'none';
       document.getElementById('seccionPosiciones').style.display = tipo === 'posiciones' ? 'block' : 'none';
       document.getElementById('seccionFixture').style.display = tipo === 'fixture' ? 'block' : 'none';
       document.getElementById('mensaje').style.display = "none";
       
-      // 2. CORRECCIÓN: Quitar el color verde (clase active) de todos los botones
       document.getElementById('tabCartillaBtn').classList.remove('active');
       document.getElementById('tabPosicionesBtn').classList.remove('active');
       document.getElementById('tabFixtureBtn').classList.remove('active');
       
-      // 3. CORRECCIÓN: Poner el color verde al botón que se acaba de presionar
       if (tipo === 'cartilla') document.getElementById('tabCartillaBtn').classList.add('active');
       if (tipo === 'posiciones') document.getElementById('tabPosicionesBtn').classList.add('active');
       if (tipo === 'fixture') document.getElementById('tabFixtureBtn').classList.add('active');
       
-      // 4. Carga de datos de la Tabla de Posiciones
       if(tipo === 'posiciones') {
         document.getElementById('contenedorTabla').innerHTML = "<p style='text-align:center;'>Procesando puntuaciones...</p>";
         fetch(`${URL_API}?accion=obtenerPosiciones`).then(r=>r.json()).then(tabla => {
@@ -350,11 +434,11 @@ function manejarCambioUsuario() {
         });
       }
       
-      // 5. Carga de datos de los Resultados Reales
       if(tipo === 'fixture') {
         document.getElementById('contenedorFixture').innerHTML = "<p style='text-align:center;'>Cargando base oficial...</p>";
         fetch(`${URL_API}?accion=obtenerFixture`).then(r=>r.json()).then(partidos => {
           let h = '<table class="tabla-fixture"><tbody>';
+          
           partidos.forEach(p => {
             let m = (p.golesReal1===""||p.golesReal2==="") ? `<span class="marcador-pendiente-badge">${p.horario}</span>` : `<span class="marcador-real-badge">${p.golesReal1} - ${p.golesReal2}</span>`;
             h += `<tr>
@@ -362,18 +446,28 @@ function manejarCambioUsuario() {
                       <strong>${p.fecha}</strong><br>
                       <span style="color:#2e7d32; font-weight:600;">${p.grupo}</span>
                     </td>
-                    <td style="text-align:right; font-weight:500;">${p.equipo1}</td>
+                    <!-- Equipo 1 -->
+                    <td style="text-align:right; font-weight:500;">
+                      ${p.equipo1} <span style="font-size:14px; margin-left:3px; vertical-align:middle;">${obtenerBandera(p.equipo1)}</span>
+                    </td>
                     <td style="text-align:center; min-width:70px;">${m}</td>
-                    <td style="text-align:left; font-weight:500;">${p.equipo2}</td>
+                    <!-- Equipo 2 -->
+                    <td style="text-align:left; font-weight:500;">
+                      <span style="font-size:14px; margin-right:3px; vertical-align:middle;">${obtenerBandera(p.equipo2)}</span> ${p.equipo2}
+                    </td>
                   </tr>`;
           });
+
+
+
+
           document.getElementById('contenedorFixture').innerHTML = h + '</tbody></table>';
         });
       }
     }
-
-
-
   </script>
+
+
+
 </body>
 </html>
