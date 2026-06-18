@@ -383,8 +383,23 @@
         const id = c.getAttribute('data-id-partido');
         const i1 = c.querySelector('.goles-eq1');
         const i2 = c.querySelector('.goles-eq2');
+        
+        // EXTRAEMOS LOS NOMBRES DE LOS EQUIPOS DESDE EL TEXTO DE LA FILA
+        const textoFila = c.querySelector('div').textContent; 
+        // El formato del texto es "Equipo 1 [Bandera] - [Bandera] Equipo 2" o similar. 
+        // Para asegurar precisión, es mejor leer directamente los contenedores de texto de los equipos:
+        const divsEquipos = c.querySelectorAll('div[style*="flex:1"]');
+        const eq1 = divsEquipos[0] ? divsEquipos[0].textContent.trim() : "";
+        const eq2 = divsEquipos[1] ? divsEquipos[1].textContent.trim() : "";
+
         if (i1 && i2 && !i1.disabled && i1.value !== "" && i2.value !== "") {
-          resultados.push({ idPartido: id, goles1: parseInt(i1.value, 10), goles2: parseInt(i2.value, 10) });
+          resultados.push({ 
+            idPartido: id, 
+            goles1: parseInt(i1.value, 10), 
+            goles2: parseInt(i2.value, 10),
+            equipo1: eq1, // <-- ENVIAMOS EL NOMBRE DEL EQUIPO 1
+            equipo2: eq2  // <-- ENVIAMOS EL NOMBRE DEL EQUIPO 2
+          });
         }
       });
 
@@ -399,6 +414,9 @@
         }).catch(() => { divMensaje.className = "mensaje"; divMensaje.style.backgroundColor = "#f8d7da"; divMensaje.style.color = "#721c24"; divMensaje.textContent = "Error al guardar."; })
         .finally(() => { btn.disabled = false; });
     });
+
+
+
   </script>
 </body>
 </html>
