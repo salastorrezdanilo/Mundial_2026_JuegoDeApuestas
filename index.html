@@ -322,6 +322,7 @@
       document.getElementById('btnGuardar').style.display = "none";
     }
 
+
     function actualizarCartilla() {
       const fecha = document.getElementById('fechaPartido').value;
       const nombre = document.getElementById('nombre').value;
@@ -355,10 +356,14 @@
               });
             }
 
+            // Guardamos los goles iniciales usando atributos "data-g1" y "data-g2"
             div.innerHTML = `
               <div style="display:flex; align-items:center; justify-content:space-between;">
                 <div style="flex:1; text-align:right; font-size:13px; font-weight:600;">${p.equipo1} ${obtenerBandera(p.equipo1)}</div>
-                <div style="margin:0 10px; display:flex; gap:5px;"><input type="number" class="goles-eq1" min="0" value="${p.goles1}" ${dis}>- <input type="number" class="goles-eq2" min="0" value="${p.goles2}" ${dis}></div>
+                <div style="margin:0 10px; display:flex; gap:5px;">
+                  <input type="number" class="goles-eq1" min="0" value="${p.goles1}" data-g1="${p.goles1}" ${dis}>- 
+                  <input type="number" class="goles-eq2" min="0" value="${p.goles2}" data-g2="${p.goles2}" ${dis}>
+                </div>
                 <div style="flex:1; text-align:left; font-size:13px; font-weight:600;">${obtenerBandera(p.equipo2)} ${p.equipo2}</div>
               </div>
               <div style="font-size:10px; color:#777; text-align:center; margin-top:4px;">Horario: <strong>${p.horario}</strong> | <strong>${p.grupo}</strong> ${p.bloqueado ? ' | <strong style="color:#d32f2f;">🔒 Bloqueado</strong>':''}</div>
@@ -369,6 +374,11 @@
           btnGuardar.style.display = partidos.some(p => !p.bloqueado) ? "block" : "none";
         }).catch(() => { cartilla.innerHTML = '<p style="text-align: center; color: red;">Error al procesar.</p>'; });
     }
+
+
+
+
+
 
     document.getElementById('formularioMundial').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -384,37 +394,46 @@
         const i1 = c.querySelector('.goles-eq1');
         const i2 = c.querySelector('.goles-eq2');
         
-        // EXTRAEMOS LOS NOMBRES DE LOS EQUIPOS DESDE EL TEXTO DE LA FILA
-        const textoFila = c.querySelector('div').textContent; 
-        // El formato del texto es "Equipo 1 [Bandera] - [Bandera] Equipo 2" o similar. 
-        // Para asegurar precisión, es mejor leer directamente los contenedores de texto de los equipos:
-        const divsEquipos = c.querySelectorAll('div[style*="flex:1"]');
-        const eq1 = divsEquipos[0] ? divsEquipos[0].textContent.trim() : "";
-        const eq2 = divsEquipos[1] ? divsEquipos[1].textContent.trim() : "";
-
         if (i1 && i2 && !i1.disabled && i1.value !== "" && i2.value !== "") {
-          resultados.push({ 
-            idPartido: id, 
-            goles1: parseInt(i1.value, 10), 
-            goles2: parseInt(i2.value, 10),
-            equipo1: eq1, // <-- ENVIAMOS EL NOMBRE DEL EQUIPO 1
-            equipo2: eq2  // <-- ENVIAMOS EL NOMBRE DEL EQUIPO 2
-          });
+          
+          // LEEMOS LOS VALORES ORIGINALES QUE SE DETECTARON AL CARGAR LA PÁGINA
+          const golesOriginal1 = i1.getAttribute('data-g1');
+          const golesOriginal2 = i2.getAttribute('data-g2');
+          
+          // COMPROBAMOS SI REALMENTE HUBO ALGÚN CAMBIO
+          if (i1.value !== golesOriginal1 || i2.value !== golesOriginal2) {
+            
+            const divsEquipos = c.querySelectorAll('div[style*="flex:1"]');
+            const eq1 = divsEquipos[0] ? divsEquipos[0].textContent.trim() : "";
+            const eq2 = divsEquipos[1] ? divsEquipos[1].textContent.trim() : "";
+
+            resultados.push({ 
+              idPartido: id, 
+              goles1: parseInt(i1.value, 10), 
+              goles2: parseInt(i2.value, 10),
+              equipo1: eq1, 
+              equipo2: eq2  
+            });
+          }
         }
       });
 
-      if (resultados.length === 0) { alert("Modifica al menos un marcador válido."); return; }
-      btn.disabled = true; divMensaje.className = "mensaje carga"; divMensaje.style.display = "block"; divMensaje.textContent = "Guardando...";
+      // SI NO HAY NINGÚN PARTIDO MODIFICADO, MANDAMOS ALERTA Y DETENEMOS EL ENVÍO
+      if (resultados.length === 0) { 
+        alert("No has realizado ninguna modificación en los pronósticos."); 
+        return; 
+      }
+      
+      btn.disabled = true; divMensaje.className = "mensaje carga"; divMensaje.style.display = "block"; divMensaje.textContent = "Guardando cambios...";
 
       fetch(`${URL_API}?accion=registrarGoles&usuario=${encodeURIComponent(nombre)}&clave=${encodeURIComponent(clave)}&fecha=${fecha}&resultados=${encodeURIComponent(JSON.stringify(resultados))}`)
         .then(res => res.json())
         .then(() => {
-          divMensaje.className = "mensaje exito"; divMensaje.textContent = "¡Guardado exitosamente!";
+          divMensaje.className = "mensaje exito"; divMensaje.textContent = "¡Modificaciones guardadas exitosamente!";
           actualizarCartilla(); setTimeout(() => { divMensaje.style.display = "none"; }, 4000);
         }).catch(() => { divMensaje.className = "mensaje"; divMensaje.style.backgroundColor = "#f8d7da"; divMensaje.style.color = "#721c24"; divMensaje.textContent = "Error al guardar."; })
         .finally(() => { btn.disabled = false; });
     });
-
 
 
   </script>
